@@ -47,7 +47,7 @@ Each design is generated using these core CS principles:
 
 ### 🔗 Links
 
-- 📁 **GitHub Repository:** [https://lnkd.in/dF__qkXs](https://lnkd.in/dF__qkXs)
+
 - 🎥 **Project Demo Video:** [https://lnkd.in/dwqXN3cP](https://lnkd.in/dwqXN3cP)
 
 > 👆 Click the **Project Demo** link above to watch the full working demonstration of the Kolam & Kaleidoscope Designer with Chitra.
