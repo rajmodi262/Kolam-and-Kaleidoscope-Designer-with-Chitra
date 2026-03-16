@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kolam & Kaleidoscope Designer with Chitra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #E8A84C;
+    --gold-light: #F5C97A;
+    --gold-dim: #9A6B1E;
+    --rust: #C0552A;
+    --cream: #F5EDD8;
+    --cream-dim: #C9B98A;
+    --bg: #0E0B07;
+    --bg2: #161007;
+    --bg3: #1E1608;
+    --surface: #211A09;
+    --surface2: #2A2210;
+    --border: rgba(232,168,76,0.15);
+    --border2: rgba(232,168,76,0.3);
+    --text: #EDE5D0;
+    --text-dim: #9A8F75;
+    --rice: rgba(245,237,216,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Dot grid background ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(232,168,76,0.18) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(192,85,42,0.12) 0%, transparent 60%),
+                radial-gradient(ellipse 60% 40% at 50% 110%, rgba(232,168,76,0.08) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page-wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    text-align: center;
+    padding: 5rem 0 3rem;
+    position: relative;
+  }
+
+  .hero-kolam {
+    width: 160px;
+    height: 160px;
+    margin: 0 auto 2rem;
+    animation: slowspin 40s linear infinite;
+    opacity: 0.9;
+    filter: drop-shadow(0 0 24px rgba(232,168,76,0.35));
+  }
+
+  @keyframes slowspin { to { transform: rotate(360deg); } }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(232,168,76,0.08);
+    border: 1px solid var(--border2);
+    border-radius: 999px;
+    padding: 5px 16px 5px 10px;
+    font-size: 12px;
+    color: var(--gold-light);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-badge .dot {
+    width: 7px; height: 7px;
+    background: var(--rust);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.8)} }
+
+  .hero h1 {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    text-shadow: 0 0 60px rgba(232,168,76,0.3);
+  }
+
+  .hero h1 span {
+    background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--rust));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: var(--text-dim);
+    max-width: 560px;
+    margin: 1.2rem auto 0;
+    font-weight: 300;
+  }
+
+  .hero-links {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold), #C97A20);
+    color: #1a0f00;
+    border: none;
+  }
+
+  .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--gold-light);
+    border: 1px solid var(--border2);
+  }
+
+  .btn-outline:hover { background: rgba(232,168,76,0.08); transform: translateY(-1px); }
+
+  /* ── Divider ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 3.5rem 0 2.5rem;
+  }
+
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border2));
+  }
+  .divider::after { background: linear-gradient(90deg, var(--border2), transparent); }
+
+  .divider-icon { color: var(--gold); opacity: 0.5; font-size: 18px; }
+
+  /* ── SIH Banner ── */
+  .sih-banner {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--gold);
+    border-radius: 10px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 2.5rem;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1.5rem;
+    align-items: center;
+  }
+
+  .sih-trophy {
+    width: 52px; height: 52px;
+    background: rgba(232,168,76,0.12);
+    border: 1px solid var(--border2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+
+  .sih-banner h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    color: var(--gold);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .sih-banner p { color: var(--text-dim); font-size: 0.88rem; }
+
+  .sih-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 0.75rem;
+  }
+
+  .meta-pill {
+    background: rgba(232,168,76,0.08);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 3px 12px;
+    font-size: 11.5px;
+    color: var(--gold-light);
+    letter-spacing: 0.03em;
+  }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 3rem;
+  }
+
+  .section-label {
+    font-size: 10.5px;
+    font-weight: 500;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 0.5rem;
+  }
+
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    color: var(--cream);
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  p { color: var(--text-dim); margin-bottom: 1rem; }
+
+  /* ── Feature Grid ── */
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+    margin-top: 1.2rem;
+  }
+
+  .feature-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .feature-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+
+  .feature-icon {
+    font-size: 22px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .feature-card h4 {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--cream);
+    margin-bottom: 5px;
+  }
+
+  .feature-card p {
+    font-size: 0.82rem;
+    color: var(--text-dim);
+    margin: 0;
+    line-height: 1.55;
+  }
+
+  /* ── Mode Cards ── */
+  .mode-list {
+    display: grid;
+    gap: 10px;
+    margin-top: 1rem;
+  }
+
+  .mode-item {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 14px;
+    align-items: start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    transition: border-color 0.2s;
+  }
+
+  .mode-item:hover { border-color: var(--border2); }
+
+  .mode-num {
+    width: 32px; height: 32px;
+    background: rgba(232,168,76,0.1);
+    border: 1px solid var(--border2);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    color: var(--gold);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .mode-title {
+    font-weight: 500;
+    color: var(--cream);
+    font-size: 0.93rem;
+    margin-bottom: 3px;
+  }
+
+  .mode-desc { font-size: 0.82rem; color: var(--text-dim); line-height: 1.55; }
+
+  /* ── Tech Stack ── */
+  .tech-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 1rem;
+  }
+
+  .tech-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    transition: all 0.2s;
+  }
+
+  .tech-pill:hover { border-color: var(--border2); color: var(--gold-light); }
+
+  .tech-pill .tag {
+    display: inline-block;
+    margin-right: 6px;
+    color: var(--gold-dim);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* ── Code Block ── */
+  pre {
+    background: #0A0800;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 12.5px;
+    color: var(--cream-dim);
+    overflow-x: auto;
+    margin: 1rem 0;
+    line-height: 1.7;
+  }
+
+  pre .cmd { color: var(--gold-light); }
+  pre .arg { color: var(--rust); }
+  pre .comment { color: #5a5243; }
+
+  /* ── Install Steps ── */
+  .install-steps {
+    counter-reset: steps;
+    display: grid;
+    gap: 10px;
+    margin-top: 1rem;
+  }
+
+  .step {
+    counter-increment: steps;
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+
+  .step::before {
+    content: counter(steps);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px; height: 28px;
+    background: rgba(232,168,76,0.1);
+    border: 1px solid var(--border2);
+    border-radius: 50%;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    color: var(--gold);
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+
+  .step-content h4 { font-size: 0.9rem; font-weight: 500; color: var(--cream); margin-bottom: 6px; }
+  .step-content p { font-size: 0.83rem; margin: 0 0 6px; }
+
+  /* ── Sample Images ── */
+  .samples-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 1.2rem;
+  }
+
+  .sample-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .sample-svg-wrap {
+    padding: 1.5rem 1rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 130px;
+  }
+
+  .sample-label {
+    padding: 8px 12px 10px;
+    font-size: 11.5px;
+    color: var(--text-dim);
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── Future & Limits ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 1rem;
+  }
+
+  .sub-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+  }
+
+  .sub-card h4 {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .item-row {
+    display: flex;
+    gap: 9px;
+    align-items: flex-start;
+    margin-bottom: 7px;
+  }
+
+  .item-dot {
+    width: 5px; height: 5px;
+    background: var(--gold-dim);
+    border-radius: 50%;
+    margin-top: 7px;
+    flex-shrink: 0;
+  }
+
+  .item-row p { font-size: 0.82rem; margin: 0; }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    padding: 4rem 0 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-kolam {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 1rem;
+    opacity: 0.3;
+  }
+
+  .footer p { font-size: 0.82rem; color: var(--text-dim); margin: 0; }
+
+  .footer a { color: var(--gold-dim); text-decoration: none; }
+  .footer a:hover { color: var(--gold); }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    margin-bottom: 3rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 32px;
+  }
+
+  .toc-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    grid-column: 1 / -1;
+    margin-bottom: 8px;
+  }
+
+  .toc a {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 3px 0;
+    transition: color 0.15s;
+  }
+
+  .toc a:hover { color: var(--gold-light); }
+  .toc a::before { content: '◆'; font-size: 5px; color: var(--gold-dim); }
+
+  /* ── About Kolam ── */
+  .about-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--rust);
+    border-radius: 10px;
+    padding: 1.5rem 2rem;
+    font-style: italic;
+    color: var(--text-dim);
+    font-size: 0.93rem;
+    line-height: 1.8;
+  }
+
+  .about-block strong { color: var(--gold-light); font-style: normal; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .two-col, .samples-row { grid-template-columns: 1fr; }
+    .toc { grid-template-columns: 1fr; }
+    .sih-banner { grid-template-columns: 1fr; }
+    .sih-trophy { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ───────────── HERO ───────────── -->
+<div class="page-wrap">
+
+  <div class="hero">
+
+    <!-- Animated Kolam SVG -->
+    <svg class="hero-kolam" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Outer dot ring -->
+      <g opacity="0.5">
+        <circle cx="80" cy="8" r="3.5" fill="#E8A84C"/>
+        <circle cx="112" cy="17" r="2.5" fill="#E8A84C"/>
+        <circle cx="143" cy="37" r="3" fill="#E8A84C"/>
+        <circle cx="152" cy="68" r="2.5" fill="#E8A84C"/>
+        <circle cx="152" cy="92" r="2.5" fill="#E8A84C"/>
+        <circle cx="143" cy="123" r="3" fill="#E8A84C"/>
+        <circle cx="112" cy="143" r="2.5" fill="#E8A84C"/>
+        <circle cx="80" cy="152" r="3.5" fill="#E8A84C"/>
+        <circle cx="48" cy="143" r="2.5" fill="#E8A84C"/>
+        <circle cx="17" cy="123" r="3" fill="#E8A84C"/>
+        <circle cx="8" cy="92" r="2.5" fill="#E8A84C"/>
+        <circle cx="8" cy="68" r="2.5" fill="#E8A84C"/>
+        <circle cx="17" cy="37" r="3" fill="#E8A84C"/>
+        <circle cx="48" cy="17" r="2.5" fill="#E8A84C"/>
+      </g>
+      <!-- Petal cross -->
+      <g stroke="#E8A84C" stroke-width="1.2" fill="none">
+        <!-- Top petal -->
+        <path d="M80 24 C65 36, 58 52, 80 60 C102 52, 95 36, 80 24Z" opacity="0.7"/>
+        <!-- Bottom petal -->
+        <path d="M80 136 C65 124, 58 108, 80 100 C102 108, 95 124, 80 136Z" opacity="0.7"/>
+        <!-- Left petal -->
+        <path d="M24 80 C36 65, 52 58, 60 80 C52 102, 36 95, 24 80Z" opacity="0.7"/>
+        <!-- Right petal -->
+        <path d="M136 80 C124 65, 108 58, 100 80 C108 102, 124 95, 136 80Z" opacity="0.7"/>
+        <!-- Diagonal petals -->
+        <path d="M38 38 C48 30, 62 34, 62 46 C50 58, 36 52, 38 38Z" opacity="0.45"/>
+        <path d="M122 38 C112 30, 98 34, 98 46 C110 58, 124 52, 122 38Z" opacity="0.45"/>
+        <path d="M38 122 C48 130, 62 126, 62 114 C50 102, 36 108, 38 122Z" opacity="0.45"/>
+        <path d="M122 122 C112 130, 98 126, 98 114 C110 102, 124 108, 122 122Z" opacity="0.45"/>
+      </g>
+      <!-- Center mandala -->
+      <circle cx="80" cy="80" r="18" stroke="#E8A84C" stroke-width="1" opacity="0.6"/>
+      <circle cx="80" cy="80" r="11" stroke="#C0552A" stroke-width="1.2" opacity="0.7"/>
+      <circle cx="80" cy="80" r="4.5" fill="#E8A84C" opacity="0.9"/>
+      <!-- Connecting lines -->
+      <g stroke="#E8A84C" stroke-width="0.5" opacity="0.3">
+        <line x1="80" y1="62" x2="80" y2="24"/>
+        <line x1="80" y1="98" x2="80" y2="136"/>
+        <line x1="62" y1="80" x2="24" y2="80"/>
+        <line x1="98" y1="80" x2="136" y2="80"/>
+      </g>
+      <!-- Mid dots -->
+      <circle cx="80" cy="24" r="2.5" fill="#C0552A" opacity="0.8"/>
+      <circle cx="80" cy="136" r="2.5" fill="#C0552A" opacity="0.8"/>
+      <circle cx="24" cy="80" r="2.5" fill="#C0552A" opacity="0.8"/>
+      <circle cx="136" cy="80" r="2.5" fill="#C0552A" opacity="0.8"/>
+    </svg>
+
+    <div class="hero-badge">
+      <span class="dot"></span>
+      Smart India Hackathon 2025 · Top 10% · Rank 63
+    </div>
+
+    <h1>Kolam & Kaleidoscope<br><span>Designer with Chitra</span></h1>
+
+    <p class="hero-sub">
+      A voice-enabled, AI-assisted web app for creating, transforming, and analyzing
+      traditional South Indian Kolam patterns — made accessible to everyone.
+    </p>
+
+    <div class="hero-links">
+      <a href="https://lnkd.in/dF__qkXs" class="btn btn-primary" target="_blank">
+        ⬡ GitHub Repository
+      </a>
+      <a href="https://lnkd.in/dwqXN3cP" class="btn btn-outline" target="_blank">
+        ▶ Watch Demo
+      </a>
+    </div>
+
+  </div>
+
+  <!-- ───────────── TOC ───────────── -->
+  <nav class="toc">
+    <p class="toc-title">Contents</p>
+    <a href="#sih">SIH 2025 Achievement</a>
+    <a href="#overview">Project Overview</a>
+    <a href="#features">Key Features</a>
+    <a href="#modes">Application Modes</a>
+    <a href="#chitra">Chitra Voice Assistant</a>
+    <a href="#tech">Tech Stack</a>
+    <a href="#install">Installation</a>
+    <a href="#samples">Sample Patterns</a>
+    <a href="#future">Future Scope</a>
+    <a href="#about">About Kolam</a>
+  </nav>
+
+  <!-- ───────────── SIH ───────────── -->
+  <section class="section" id="sih">
+    <p class="section-label">Achievement</p>
+    <h2 class="section-title">Smart India Hackathon 2025</h2>
+
+    <div class="sih-banner">
+      <div class="sih-trophy">🏆</div>
+      <div>
+        <h3>Top 10% · Overall Rank 63</h3>
+        <p>Team BrainChain cleared the college-level SIH rounds and secured a top-10% finish at MIT World Peace University's internal round — standing strong among hundreds of competing teams.</p>
+        <div class="sih-meta">
+          <span class="meta-pill">Problem ID SIH25107</span>
+          <span class="meta-pill">Team BrainChain · #83250</span>
+          <span class="meta-pill">Mentor: Dr. Jayshree Ghorpade-Aher</span>
+          <span class="meta-pill">MIT World Peace University</span>
+        </div>
+      </div>
+    </div>
+
+    <p>The original SIH submission used <strong style="color:var(--gold-light)">Python Turtle Graphics</strong> to programmatically generate four Kolam types, reducing manual effort by <strong style="color:var(--gold-light)">80–90%</strong> through geometric algorithms and n-fold symmetry.</p>
+  </section>
+
+  <div class="divider"><span class="divider-icon">◆</span></div>
+
+  <!-- ───────────── OVERVIEW ───────────── -->
+  <section class="section" id="overview">
+    <p class="section-label">What It Does</p>
+    <h2 class="section-title">Project Overview</h2>
+    <p>Kolam is a traditional South Indian art form — intricate geometric patterns drawn at dawn with rice flour at home thresholds. This project digitizes, preserves, and extends that heritage using modern machine learning, computer vision, and speech technology.</p>
+    <p>Built as a multi-mode Streamlit web app, it lets you load, draw, upload, or conversationally generate Kolam patterns — and analyze the deep mathematics hiding within each one.</p>
+  </section>
+
+  <!-- ───────────── FEATURES ───────────── -->
+  <section class="section" id="features">
+    <p class="section-label">Capabilities</p>
+    <h2 class="section-title">Key Features</h2>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <span class="feature-icon">🎙️</span>
+        <h4>Chitra Voice Assistant</h4>
+        <p>Full natural language interaction with 50+ voice commands, spoken feedback via Google TTS, and a text-chat fallback.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">♿</span>
+        <h4>Conversational Drawing</h4>
+        <p>Visually impaired users can say "draw a big circle in the center" and Chitra draws it — no mouse needed.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">✨</span>
+        <h4>Generative Design</h4>
+        <p>AI-powered generation of new Kolam patterns from symmetry, complexity, and style parameters.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">👁️</span>
+        <h4>Computer Vision Pipeline</h4>
+        <p>Skeletonization, contour detection, and mask processing to extract patterns from any uploaded image.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">📐</span>
+        <h4>Mathematical Analysis</h4>
+        <p>Euler characteristic, topological analysis, graph theory via NetworkX, and symmetry order detection.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">🌈</span>
+        <h4>Kaleidoscope Tool</h4>
+        <p>An embedded HTML5 canvas with 8-fold symmetry, glow effects, rainbow mode, and touch support.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">💾</span>
+        <h4>SVG & PNG Export</h4>
+        <p>Download your creation as scalable vector graphics or 300-DPI raster — print-ready quality.</p>
+      </div>
+      <div class="feature-card">
+        <span class="feature-icon">💡</span>
+        <h4>Neon Glow Effect</h4>
+        <p>Real-time multi-layer Gaussian glow transforms freehand strokes into luminous neon art.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"><span class="divider-icon">◆</span></div>
+
+  <!-- ───────────── MODES ───────────── -->
+  <section class="section" id="modes">
+    <p class="section-label">Creation Modes</p>
+    <h2 class="section-title">Application Modes</h2>
+
+    <div class="mode-list">
+      <div class="mode-item">
+        <div class="mode-num">I</div>
+        <div>
+          <p class="mode-title">Predefined Kolam</p>
+          <p class="mode-desc">Load one of three bundled patterns (Simple, Lotus, Star). Binarized via Otsu's thresholding, then skeletonized to extract a point-cloud for transformation and analysis.</p>
+        </div>
+      </div>
+      <div class="mode-item">
+        <div class="mode-num">II</div>
+        <div>
+          <p class="mode-title">Upload Image</p>
+          <p class="mode-desc">Upload any Kolam photograph. The CV pipeline decodes, grayscales, thresholds, and skeletonizes it into an editable point cloud.</p>
+        </div>
+      </div>
+      <div class="mode-item">
+        <div class="mode-num">III</div>
+        <div>
+          <p class="mode-title">Draw Freehand</p>
+          <p class="mode-desc">Draw directly on an interactive canvas. Optionally overlay a reference image for tracing. Apply the neon glow effect for a stunning visual finish.</p>
+        </div>
+      </div>
+      <div class="mode-item">
+        <div class="mode-num">IV</div>
+        <div>
+          <p class="mode-title">Kaleidoscope Draw</p>
+          <p class="mode-desc">Draw with 8-fold rotational symmetry in a built-in HTML5 canvas. Choose from 9 solid colors or rainbow mode. Touch-enabled for mobile and tablet.</p>
+        </div>
+      </div>
+      <div class="mode-item">
+        <div class="mode-num">V</div>
+        <div>
+          <p class="mode-title">Conversational Drawing <span style="font-size:10px;color:var(--rust);background:rgba(192,85,42,0.12);border-radius:4px;padding:2px 7px;margin-left:4px;font-family:'DM Mono',monospace">Accessibility</span></p>
+          <p class="mode-desc">Tell Chitra what to draw using natural speech. Designed for visually impaired users — pure voice, zero pointing device required.</p>
+        </div>
+      </div>
+      <div class="mode-item">
+        <div class="mode-num">VI</div>
+        <div>
+          <p class="mode-title">Generative Design <span style="font-size:10px;color:var(--gold);background:rgba(232,168,76,0.1);border-radius:4px;padding:2px 7px;margin-left:4px;font-family:'DM Mono',monospace">AI-Powered</span></p>
+          <p class="mode-desc">Tweak symmetry, complexity, and style sliders, then click "Generate". The algorithm creates entirely new Kolam designs using B-spline interpolation and rotational math.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── CHITRA ───────────── -->
+  <section class="section" id="chitra">
+    <p class="section-label">Voice Assistant</p>
+    <h2 class="section-title">Chitra — Your AI Companion</h2>
+    <p>Chitra is the soul of this app. A personal voice assistant with an Indian English female voice (via Google TTS <code style="font-family:'DM Mono',monospace;font-size:0.85em;color:var(--gold-light);background:rgba(232,168,76,0.07);padding:1px 6px;border-radius:4px">tld='co.in'</code>), she processes speech with Google Speech Recognition and a Sphinx offline fallback — meaning she works without internet when needed.</p>
+    <p>Every action in the app is accessible via voice command, and every Chitra response is simultaneously displayed as text <em>and</em> spoken aloud — audio plays in a background thread so the UI never freezes.</p>
+  </section>
+
+  <div class="divider"><span class="divider-icon">◆</span></div>
+
+  <!-- ───────────── TECH ───────────── -->
+  <section class="section" id="tech">
+    <p class="section-label">Under the Hood</p>
+    <h2 class="section-title">Tech Stack</h2>
+
+    <div class="tech-grid">
+      <span class="tech-pill"><span class="tag">UI</span>Streamlit</span>
+      <span class="tech-pill"><span class="tag">Canvas</span>streamlit-drawable-canvas</span>
+      <span class="tech-pill"><span class="tag">Voice In</span>SpeechRecognition</span>
+      <span class="tech-pill"><span class="tag">Voice Out</span>gTTS</span>
+      <span class="tech-pill"><span class="tag">Mic</span>streamlit-mic-recorder</span>
+      <span class="tech-pill"><span class="tag">Audio</span>playsound 1.2.2</span>
+      <span class="tech-pill"><span class="tag">CV</span>OpenCV</span>
+      <span class="tech-pill"><span class="tag">Skeleton</span>scikit-image</span>
+      <span class="tech-pill"><span class="tag">Math</span>NumPy · SciPy</span>
+      <span class="tech-pill"><span class="tag">Graph</span>NetworkX*</span>
+      <span class="tech-pill"><span class="tag">Vector</span>svgwrite*</span>
+      <span class="tech-pill"><span class="tag">Viz</span>Matplotlib</span>
+      <span class="tech-pill"><span class="tag">Images</span>Pillow</span>
+      <span class="tech-pill"><span class="tag">HTML</span>streamlit.components.v1</span>
+      <span class="tech-pill"><span class="tag">Core</span>Python 3.x</span>
+    </div>
+    <p style="font-size:0.8rem;margin-top:12px">* Optional — the app gracefully disables NetworkX and svgwrite features if not installed.</p>
+  </section>
+
+  <!-- ───────────── INSTALL ───────────── -->
+  <section class="section" id="install">
+    <p class="section-label">Get Started</p>
+    <h2 class="section-title">Installation & Setup</h2>
+
+    <div class="install-steps">
+      <div class="step">
+        <div class="step-content">
+          <h4>Clone the repository</h4>
+          <pre><span class="cmd">git clone</span> <span class="arg">https://github.com/your-username/Kolam-and-Kaleidoscope-Designer-with-Chitra.git</span>
+<span class="cmd">cd</span> Kolam-and-Kaleidoscope-Designer-with-Chitra</pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-content">
+          <h4>Install dependencies</h4>
+          <pre><span class="cmd">pip install</span> <span class="arg">streamlit opencv-python scikit-image scipy networkx \
+            streamlit-mic-recorder SpeechRecognition gtts playsound==1.2.2 \
+            svgwrite matplotlib streamlit-drawable-canvas Pillow</span></pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-content">
+          <h4>Update image paths in kolam.py</h4>
+          <pre><span class="comment"># In kolam.py, ensure the paths point to the same folder:</span>
+PREMADE_PATTERNS = {
+    <span class="arg">"Simple Kolam"</span>: <span class="arg">"simple kolam.jpg"</span>,
+    <span class="arg">"Lotus Kolam"</span>:  <span class="arg">"lotus kolam.jpg"</span>,
+    <span class="arg">"Star Kolam"</span>:   <span class="arg">"star kolam.jpg"</span>
+}</pre>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-content">
+          <h4>Run the app</h4>
+          <pre><span class="cmd">streamlit run</span> <span class="arg">kolam.py</span>
+<span class="comment"># Open http://localhost:8501 in your browser</span></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"><span class="divider-icon">◆</span></div>
+
+  <!-- ───────────── SAMPLES ───────────── -->
+  <section class="section" id="samples">
+    <p class="section-label">Bundled Patterns</p>
+    <h2 class="section-title">Sample Kolam Images</h2>
+
+    <div class="samples-row">
+
+      <!-- Simple Kolam -->
+      <div class="sample-card">
+        <div class="sample-svg-wrap">
+          <svg width="90" height="90" viewBox="0 0 90 90" fill="none">
+            <circle cx="45" cy="45" r="28" stroke="#E8A84C" stroke-width="1" opacity="0.6"/>
+            <circle cx="45" cy="45" r="18" stroke="#E8A84C" stroke-width="1.2" opacity="0.7"/>
+            <circle cx="45" cy="45" r="8" stroke="#C0552A" stroke-width="1.2" opacity="0.8"/>
+            <circle cx="45" cy="45" r="3" fill="#E8A84C"/>
+            <circle cx="45" cy="17" r="2.5" fill="#E8A84C" opacity="0.7"/>
+            <circle cx="45" cy="73" r="2.5" fill="#E8A84C" opacity="0.7"/>
+            <circle cx="17" cy="45" r="2.5" fill="#E8A84C" opacity="0.7"/>
+            <circle cx="73" cy="45" r="2.5" fill="#E8A84C" opacity="0.7"/>
+            <line x1="45" y1="17" x2="45" y2="73" stroke="#E8A84C" stroke-width="0.5" opacity="0.25"/>
+            <line x1="17" y1="45" x2="73" y2="45" stroke="#E8A84C" stroke-width="0.5" opacity="0.25"/>
+          </svg>
+        </div>
+        <p class="sample-label">simple kolam.jpg</p>
+      </div>
+
+      <!-- Lotus Kolam -->
+      <div class="sample-card">
+        <div class="sample-svg-wrap">
+          <svg width="90" height="90" viewBox="0 0 90 90" fill="none">
+            <path d="M45 18 C35 28, 32 38, 45 44 C58 38, 55 28, 45 18Z" stroke="#E8A84C" stroke-width="1" opacity="0.75"/>
+            <path d="M45 72 C35 62, 32 52, 45 46 C58 52, 55 62, 45 72Z" stroke="#E8A84C" stroke-width="1" opacity="0.75"/>
+            <path d="M18 45 C28 35, 38 32, 44 45 C38 58, 28 55, 18 45Z" stroke="#E8A84C" stroke-width="1" opacity="0.75"/>
+            <path d="M72 45 C62 35, 52 32, 46 45 C52 58, 62 55, 72 45Z" stroke="#E8A84C" stroke-width="1" opacity="0.75"/>
+            <circle cx="45" cy="45" r="9" stroke="#C0552A" stroke-width="1.2" opacity="0.8"/>
+            <circle cx="45" cy="45" r="4" fill="#E8A84C" opacity="0.9"/>
+            <circle cx="45" cy="18" r="2" fill="#C0552A" opacity="0.7"/>
+            <circle cx="45" cy="72" r="2" fill="#C0552A" opacity="0.7"/>
+            <circle cx="18" cy="45" r="2" fill="#C0552A" opacity="0.7"/>
+            <circle cx="72" cy="45" r="2" fill="#C0552A" opacity="0.7"/>
+          </svg>
+        </div>
+        <p class="sample-label">lotus kolam.jpg</p>
+      </div>
+
+      <!-- Star Kolam -->
+      <div class="sample-card">
+        <div class="sample-svg-wrap">
+          <svg width="90" height="90" viewBox="0 0 90 90" fill="none">
+            <polygon points="45,14 50,36 72,36 54,49 60,71 45,58 30,71 36,49 18,36 40,36" stroke="#E8A84C" stroke-width="1" fill="none" opacity="0.75"/>
+            <circle cx="45" cy="45" r="8" stroke="#C0552A" stroke-width="1" opacity="0.7"/>
+            <circle cx="45" cy="45" r="3" fill="#E8A84C"/>
+            <circle cx="45" cy="14" r="2" fill="#E8A84C" opacity="0.6"/>
+            <circle cx="72" cy="36" r="2" fill="#E8A84C" opacity="0.6"/>
+            <circle cx="60" cy="71" r="2" fill="#E8A84C" opacity="0.6"/>
+            <circle cx="30" cy="71" r="2" fill="#E8A84C" opacity="0.6"/>
+            <circle cx="18" cy="36" r="2" fill="#E8A84C" opacity="0.6"/>
+          </svg>
+        </div>
+        <p class="sample-label">star kolam.jpg</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ───────────── FUTURE ───────────── -->
+  <section class="section" id="future">
+    <p class="section-label">Roadmap</p>
+    <h2 class="section-title">Known Limitations & Future Scope</h2>
+
+    <div class="two-col">
+      <div class="sub-card">
+        <h4>⚠ Current Limitations</h4>
+        <div class="item-row"><div class="item-dot"></div><p>Hardcoded Windows absolute paths — must be updated manually</p></div>
+        <div class="item-row"><div class="item-dot"></div><p>playsound 1.2.2 may have issues on Linux/Mac</p></div>
+        <div class="item-row"><div class="item-dot"></div><p>Google TTS & SR require an active internet connection</p></div>
+        <div class="item-row"><div class="item-dot"></div><p>Kaleidoscope output can't yet be fed into the analysis pipeline</p></div>
+        <div class="item-row"><div class="item-dot"></div><p>Conversational drawing supports only circle, square, and line</p></div>
+      </div>
+      <div class="sub-card">
+        <h4>🚀 Future Scope</h4>
+        <div class="item-row"><div class="item-dot"></div><p>Tamil voice command support for native speakers</p></div>
+        <div class="item-row"><div class="item-dot"></div><p>Offline TTS fallback via pyttsx3</p></div>
+        <div class="item-row"><div class="item-dot"></div><p>Streamlit Cloud / Hugging Face Spaces deployment</p></div>
+        <div class="item-row"><div class="item-dot"></div><p>Community gallery and pattern sharing</p></div>
+        <div class="item-row"><div class="item-dot"></div><p>More generative styles: mandala, spiral, geometric mesh</p></div>
+        <div class="item-row"><div class="item-dot"></div><p>Color-aware conversational drawing ("draw a red circle")</p></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"><span class="divider-icon">◆</span></div>
+
+  <!-- ───────────── ABOUT ───────────── -->
+  <section class="section" id="about">
+    <p class="section-label">Cultural Context</p>
+    <h2 class="section-title">About Kolam</h2>
+
+    <div class="about-block">
+      <strong>Kolam</strong> is a traditional South Indian art form practiced primarily in Tamil Nadu — intricate geometric patterns drawn at dawn with rice flour at the threshold of homes. Far beyond decoration, each Kolam embodies deep mathematical principles: <strong>Topology</strong>, <strong>Graph Theory</strong>, <strong>Symmetry Groups</strong>, and <strong>Fractal Geometry</strong>. This application helps preserve and study this beautiful mathematical art while making it accessible to everyone — through natural conversation, voice, and the quiet magic of an algorithm drawing what hands once drew in flour on stone.
+    </div>
+  </section>
+
+  <!-- ───────────── FOOTER ───────────── -->
+  <div class="footer">
+    <svg class="footer-kolam" viewBox="0 0 56 56" fill="none">
+      <circle cx="28" cy="28" r="24" stroke="#E8A84C" stroke-width="0.8"/>
+      <circle cx="28" cy="28" r="14" stroke="#E8A84C" stroke-width="0.8"/>
+      <circle cx="28" cy="28" r="4" fill="#E8A84C"/>
+      <path d="M28 4 C22 12, 20 20, 28 24 C36 20, 34 12, 28 4Z" stroke="#E8A84C" stroke-width="0.7" fill="none"/>
+      <path d="M28 52 C22 44, 20 36, 28 32 C36 36, 34 44, 28 52Z" stroke="#E8A84C" stroke-width="0.7" fill="none"/>
+      <path d="M4 28 C12 22, 20 20, 24 28 C20 36, 12 34, 4 28Z" stroke="#E8A84C" stroke-width="0.7" fill="none"/>
+      <path d="M52 28 C44 22, 36 20, 32 28 C36 36, 44 34, 52 28Z" stroke="#E8A84C" stroke-width="0.7" fill="none"/>
+    </svg>
+    <p>Developed with ❤️ by <strong style="color:var(--gold-dim)">Team BrainChain</strong> · MIT World Peace University</p>
+    <p style="margin-top:6px">
+      <a href="https://lnkd.in/dF__qkXs">GitHub</a> &nbsp;·&nbsp;
+      <a href="https://lnkd.in/dwqXN3cP">Demo Video</a> &nbsp;·&nbsp;
+      <span>Educational & Research Use</span>
+    </p>
+  </div>
+
+</div><!-- /page-wrap -->
+</body>
+</html>
